@@ -6,6 +6,8 @@ import argparse
 import subprocess
 
 cap = cv2.VideoCapture(1)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 2400)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1920)
 
 # Face model
 def highlightFace(net, frame, conf_threshold=0.7):
@@ -140,8 +142,8 @@ with mp_hands.Hands(
             board_path = "C:\\Program Files (x86)\\WellCraftedWhiteBoard\\WhiteBoard.exe"
             process1 = subprocess.Popen(board_path)
             
-            
     cv2.imshow('Detection Window', image)
+  
     
     if cv2.waitKey(5) & 0xFF == 27:
       break
