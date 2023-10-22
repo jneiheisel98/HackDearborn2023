@@ -3,11 +3,11 @@ import cv2
 import pyautogui
 import mediapipe as mp
 import argparse
-
+import subprocess
 
 cap = cv2.VideoCapture(1)
 
-
+# Face model
 def highlightFace(net, frame, conf_threshold=0.7):
     frameOpencvDnn=frame.copy()
     frameHeight=frameOpencvDnn.shape[0]
@@ -90,7 +90,7 @@ with mp_hands.Hands(
 
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    if results.multi_hand_landmarks:
+    if results.multi_hand_landmarks:                #Hand Gesture Model
         x_max = 0
         y_max = 0
         x_min = w
@@ -98,8 +98,16 @@ with mp_hands.Hands(
         for hand_landmarks in results.multi_hand_landmarks:
             index_tip_y = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
             index_pip_y = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_PIP].y
+            pinky_tip_y = hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y
+            pinky_pip_y = hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_PIP].y
+            ring_tip_y = hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y
+            ring_pip_y = hand_landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_PIP].y
+            middle_tip_y = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y
+            middle_pip_y = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_PIP].y
             thumb_tip_y = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].y
             thumb_mcp_y = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_MCP].y
+            thumb_tip_x = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].x
+            thumb_mcp_x = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_MCP].x
             for hand_lm in hand_landmarks.landmark:
                 x, y = int(hand_lm.x * w), int(hand_lm.y * h)
                 if x > x_max:
@@ -120,13 +128,23 @@ with mp_hands.Hands(
             cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
         if thumb_tip_y < thumb_mcp_y:
             pyautogui.press('volumeup')
-        elif thumb_tip_y > thumb_mcp_y:
+            
+        if thumb_tip_y > thumb_mcp_y:
             pyautogui.press('volumedown')
             
-     
+        if pinky_tip_y > pinky_pip_y and ring_tip_y > ring_pip_y and middle_tip_y < middle_pip_y and index_tip_y < index_pip_y and thumb_tip_x < thumb_mcp_x:
+            zoom_path = "C:\\Users\\anshr\\AppData\\Roaming\\Zoom\\bin\\Zoom.exe"
+            process = subprocess.Popen(zoom_path)
+        
+        if pinky_tip_y < pinky_pip_y and ring_tip_y > ring_pip_y and middle_tip_y > middle_pip_y and index_tip_y < index_pip_y and thumb_tip_x < thumb_mcp_x:
+            board_path = "C:\\Program Files (x86)\\WellCraftedWhiteBoard\\WhiteBoard.exe"
+            process1 = subprocess.Popen(board_path)
+            
+            
     cv2.imshow('Detection Window', image)
     
     if cv2.waitKey(5) & 0xFF == 27:
       break
+
 cap.release()
 

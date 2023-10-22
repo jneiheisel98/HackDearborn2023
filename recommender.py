@@ -34,24 +34,17 @@ df.loc[df["Certificate"] == "Passed", "Certificate"] = "R"
 df.loc[df["Certificate"] == "Approved", "Certificate"] = "R"
      
 
-    
-
-    
-
 df = df.drop(columns=["Poster_Link", "Released_Year", "Overview", "Director", "Star1", "Star2", "Star3", "Star4", "No_of_Votes", "Gross"])
 df[['Genre1','Genre2', 'Genre3']] = df.Genre.str.split(expand=True)
 df['Genre1'] = df['Genre1'].str.replace(',','')
 df['Genre2'] = df['Genre2'].str.replace(',','')
 df['Genre3'] = df['Genre3'].str.replace(',','')
 
-
-print(df)
 one_df = pd.get_dummies(df, columns = ["Certificate"])
 
-one_df[['Runtime','fluff']] = one_df.Runtime.str.split(expand=True)
-
+one_df[['Runtime','fluff']] = one_df.Runtime.str.split(expand=True) 
 one_df = one_df.drop(columns = ["Series_Title", "fluff", "Genre"])
-print(one_df)
+
 one_df["Genre1"][one_df["Genre1"].notnull()] = 1
 gen1 = one_df["Genre1"]
 gen1.fillna(value = "0", inplace=True)
@@ -96,7 +89,8 @@ for idx in one_df.index:
             
 print(len(ovrScore))
 one_df["Overall_score"] = ovrScore
-print(one_df)
+df["Overall_score"] = ovrScore
+print(df)
 
 X_train, X_test, y_train, y_test = train_test_split(one_df.iloc[:,:10],one_df.iloc[:,10], random_state = 42,test_size=0.20, shuffle= True)
 
@@ -117,6 +111,8 @@ print("\nTest Accuracy for 15-NN:",test_accuracy[14])
 model = MLPClassifier(hidden_layer_sizes= 50, activation='relu', max_iter=10000)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
+#test = []                        #input from the API to recommend movies
+#pred = model.predict(test)       # predicted score
 mse = mean_squared_error(y_test,y_pred)
 print("\nMetrics for Neural Network model:")
 print("(a) \nMean square error:", mse)
@@ -144,3 +140,4 @@ y = x
 plt.plot(x, y, linewidth=2.0)
 plt.show()
 
+#df["Series_Title", "Runtime"].where(df["Overall_score"] == pred)   #List of recommended movies
